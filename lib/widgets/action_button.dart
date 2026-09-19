@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/breakpoints.dart';
+
 class ActionButton extends StatelessWidget {
   final String icon;
   final String label;
@@ -14,6 +16,8 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wide = isWideLayout(context);
+
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(14),
@@ -29,12 +33,12 @@ class ActionButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(icon, style: const TextStyle(fontSize: 20)),
-              const SizedBox(height: 6),
+              Text(icon, style: TextStyle(fontSize: wide ? 30 : 20)),
+              SizedBox(height: wide ? 8 : 6),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF475569)),
+                style: TextStyle(fontSize: wide ? 14 : 11, color: const Color(0xFF475569)),
               ),
             ],
           ),

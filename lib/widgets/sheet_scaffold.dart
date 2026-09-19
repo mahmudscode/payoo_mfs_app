@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../theme/breakpoints.dart';
 
 /// Shared chrome for every bottom sheet (Add Money, Cash Out, Transfer,
 /// Get Bonus, Pay Bill, Transactions) - a title over a white rounded card.
@@ -18,6 +19,8 @@ class SheetScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wide = isWideLayout(context);
+
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
@@ -29,9 +32,11 @@ class SheetScaffold extends StatelessWidget {
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppTheme.background,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: wide
+                  ? BorderRadius.circular(20)
+                  : const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -45,7 +50,18 @@ class SheetScaffold extends StatelessWidget {
                         title,
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                      if (trailing != null) trailing!,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (trailing != null) trailing!,
+                          if (wide)
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 20),
+                              tooltip: 'Close',
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),

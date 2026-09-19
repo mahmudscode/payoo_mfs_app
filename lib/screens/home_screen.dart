@@ -2,20 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_state.dart';
-import '../sheets/add_money_sheet.dart';
-import '../sheets/cash_out_sheet.dart';
-import '../sheets/get_bonus_sheet.dart';
-import '../sheets/pay_bill_sheet.dart';
-import '../sheets/transactions_sheet.dart';
-import '../sheets/transfer_money_sheet.dart';
+import '../theme/breakpoints.dart';
 import '../widgets/action_button.dart';
 import '../widgets/responsive_page.dart';
+import 'desktop_home_view.dart';
+import 'home_actions.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  /// Bottom sheet on phones, centered dialog on wide (desktop/web) screens.
   void _openSheet(BuildContext context, Widget sheet) {
+    if (isWideLayout(context)) {
+      showDialog(
+        context: context,
+        builder: (_) => Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: sheet,
+          ),
+        ),
+      );
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -33,6 +46,15 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isWideLayout(context)) {
+      return Scaffold(
+        body: DesktopHomeView(
+          onOpen: (sheet) => _openSheet(context, sheet),
+          onLogout: () => _logout(context),
+        ),
+      );
+    }
+
     final balance = context.watch<AppState>().balance;
 
     return Scaffold(
@@ -92,36 +114,12 @@ class HomeScreen extends StatelessWidget {
                         crossAxisSpacing: 10,
                         childAspectRatio: 1,
                         children: [
-                          ActionButton(
-                            icon: '💰',
-                            label: 'Add Money',
-                            onTap: () => _openSheet(context, const AddMoneySheet()),
-                          ),
-                          ActionButton(
-                            icon: '💸',
-                            label: 'Cashout',
-                            onTap: () => _openSheet(context, const CashOutSheet()),
-                          ),
-                          ActionButton(
-                            icon: '💵',
-                            label: 'Transfer Money',
-                            onTap: () => _openSheet(context, const TransferMoneySheet()),
-                          ),
-                          ActionButton(
-                            icon: '🎁',
-                            label: 'Get Bonus',
-                            onTap: () => _openSheet(context, const GetBonusSheet()),
-                          ),
-                          ActionButton(
-                            icon: '💳',
-                            label: 'Pay Bill',
-                            onTap: () => _openSheet(context, const PayBillSheet()),
-                          ),
-                          ActionButton(
-                            icon: '🧾',
-                            label: 'Transactions',
-                            onTap: () => _openSheet(context, const TransactionsSheet()),
-                          ),
+                          for (final action in homeActions)
+                            ActionButton(
+                              icon: action.icon,
+                              label: action.label,
+                              onTap: () => _openSheet(context, action.sheet),
+                            ),
                         ],
                       ),
                     ],
